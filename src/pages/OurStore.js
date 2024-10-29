@@ -143,10 +143,10 @@ const OurStore = () => {
               <div className='flex justify-between items-center gap-2'>
               <div className='flex items-center gap-2'>
                 <p className='mb-0 block w-20'>Sort By:</p>
-                <select id="" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500">
-    <option value="best-selling" selected>Best selling</option>
+                <select id="" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500" defaultValue={"Default"}>
+                  <option value="Default" >Best selling</option>
     <option value="title-ascending">Alphabetically, A-Z</option>
-    <option value="title-descending">Alphabetically, A-Z</option>
+    <option value="title-descending">Alphabetically, Z-A</option>
     <option value="price-ascending">Price, low to high</option>
     <option value="price-descending">Price, high to low</option>
     <option value="created-ascending">Date,old to new</option>
