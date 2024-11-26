@@ -1,10 +1,21 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Meta from '../components/Meta'
 import BreadCrumb from '../components/BreadCrumb'
 import { MdDelete } from "react-icons/md";
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteCartProduct, getUserCart } from '../features/user/userSlice';
 
 const Cart = () => {
+    const dispatch=useDispatch();
+    const userCartState=useSelector(state=>state.auth.cartProducts)
+    useEffect(()=>{
+dispatch(getUserCart());
+    },[])
+   const deleteACartProduct=(id)=>{
+    dispatch(deleteCartProduct({cartItemId:id}));
+   }
+    
   return (
     <>
       <Meta title={"Cart"}/>
@@ -19,50 +30,35 @@ const Cart = () => {
                         <h4 className='cart-col-3'>Quantity</h4>
                         <h4 className='cart-col-4'>Total</h4>
                     </div>
-                    <div className='cart-data py-3 mb-2 flex justify-between content-center'>
+                    {userCartState && userCartState?.map((item,index)=>{
+                        return(
+                            <div key={index} className='cart-data py-3 mb-2 flex justify-between content-center'>
                         <div className='cart-col-1 gap-2 flex items-center '>
                             <div className='w-1/4'>
-                                <img src='watch.png' alt='watch' className='w-full'/>
+                                <img src={item?.images?.[0].url?item?.images?.[0].url:""} alt='watch' className='w-full'/>
                             </div>
                             <div className='w-3/4'>
-                                <p className='title'>Watch</p>
-                                <p className='color'>Color: Black</p>
-                                <p className='size'>Size: All</p>
+                                <p className='title'>{item?.productId?.title}</p>
+                                <p className='color flex gap-3'>Color:<ul className='colors ps-0'>
+                                    <li style={{backgroundColor:item?.color?.title}}></li></ul></p>
                             </div>
                         </div>
-                        <div className='cart-col-2'>Rs. 3000</div>
+                        <div className='cart-col-2'>Rs. {item?.price}</div>
                         <div className='cart-col-3 flex items-start justify-start gap-3 '>
                             <div>
-                                <input className='form-control w-10 border border-gray-400 rounded-lg' min={1} max={10} defaultValue={1} type='number' name='' id=''/>
+                                <input className='form-control w-10 border border-gray-400 rounded-lg' min={1} max={10} defaultValue={1} type='number' name='' id='' value={item?.quantity}/>
                             </div>
-                            <div>
-                            <MdDelete className='mt-1 text-red-600'/>
-                            </div>
+                            <button onClick={deleteACartProduct(item?._id)}>
+                            <MdDelete  className='mt-1 text-red-600'/>
+                            </button>
                         </div>
-                        <div className='cart-col-4'>Total</div>
+                        <div className='cart-col-4'>
+                            <h5 className='price'>Rs. {item?.price*item?.quantity}</h5>
+                        </div>
                     </div>
-                    <div className='cart-data py-3 mb-2 flex justify-between content-center'>
-                        <div className='cart-col-1 gap-2 flex items-center '>
-                            <div className='w-1/4'>
-                                <img src='watch.png' alt='watch' className='w-full'/>
-                            </div>
-                            <div className='w-3/4'>
-                                <p >Watch</p>
-                                <p >Color: Black</p>
-                                <p >Size: All</p>
-                            </div>
-                        </div>
-                        <div className='cart-col-2'>Rs. 3000</div>
-                        <div className='cart-col-3 flex items-start justify-start gap-3 '>
-                            <div>
-                                <input className='form-control w-10 border border-gray-400 rounded-lg' min={1} max={10} defaultValue={1} type='number' name='' id=''/>
-                            </div>
-                            <div>
-                            <MdDelete className='mt-1 text-red-600'/>
-                            </div>
-                        </div>
-                        <div className='cart-col-4'>Total</div>
-                    </div>
+                        )
+                    })}
+                    
                 </div>
                 <div className='w-full py-2 mt-4'>
                     <div className='flex justify-between items-baseline'> 

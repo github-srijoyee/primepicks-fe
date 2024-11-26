@@ -1,13 +1,48 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import Marquee from "react-fast-marquee";
 import BlogCard from '../components/BlogCard';
 import ProductCard from '../components/ProductCard';
 import SpecialProducts from '../components/SpecialProducts';
 import { Helmet } from 'react-helmet';
 import Container from './Container';
+import moment from "moment";
 import { services } from '../utils/Data';
+import ReactStars from "react-rating-stars-component";
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { addToWishlist } from '../features/product/productSlice';
+import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllBlogs } from '../features/blogs/blogSlice';
+import { getAllProducts } from '../features/product/productSlice';
+
 const Home = () => {
+ 
+  
+  let location = useLocation();
+  const navigate=useNavigate();
+const addToWish=(id)=>{
+dispatch(addToWishlist(id));
+toast.success("Added to Wishlist");
+}
+
+  const blogState=useSelector((state)=>state?.blog?.blog)||[];
+
+  
+  const productState=useSelector((state)=>state?.product?.product);
+  console.log(productState);
+ 
+
+    const dispatch=useDispatch();
+    useEffect(()=>{
+      getBlogs();
+      getallproducts();
+    },[]);
+    const getBlogs=()=>{
+  dispatch(getAllBlogs());
+    }
+    const getallproducts=()=>{
+      dispatch(getAllProducts());
+    }
   return (
     <>
       <Helmet>
@@ -102,22 +137,61 @@ const Home = () => {
   <div className='max-w-screen-xl mx-auto'>
     <h3 className='section-heading font-bold text-3xl mb-3 ms-2'>Featured Collections</h3>
     <div className='flex flex-wrap'>
-      {/* For larger screens, 4 items in a row */}
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <ProductCard />
-      </div>
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <ProductCard />
-      </div>
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <ProductCard />
-      </div>
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <ProductCard />
-      </div>
+      {/* Map over products and render only featured items */}
+      {
+        productState && productState?.map((item, index) => {
+          if (item.tags?.includes('featured')) {
+            return (
+              <div key={index} className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
+                <Link className='product-card relative'>
+                  <div className='wishlist-icon absolute'>
+                    <button onClick={(e) => { addToWish(item?._id) }}>
+                      <img src='wish.svg' alt='wishlist' className='w-5 h-5' />
+                    </button>
+                  </div>
+                  <div className='product-image'>
+                    <img className='w-[90%] h-64 mx-auto' src={item?.images[0]?.url} alt='product image' />
+                    <img className='w-[90%] h-64 mx-auto' src={item?.images[1]?.url} alt='product image' />
+                  </div>
+                  <div className='product-details'>
+                    <h6 className='brand'>{item?.brand}</h6>
+                    <h5 className='product-title font-bold'>{item?.title}</h5>
+                    <ReactStars
+                      count={5}
+                      size={24}
+                      value={parseFloat(item?.totalrating) || 0}
+                      edit={false}
+                      activeColor="#ffd700"
+                    />
+                    <p className='price'>Rs. {item?.price}</p>
+                  </div>
+                  <div className='action-bar absolute'>
+                    <div className='flex flex-col gap-2'>
+                      <Link>
+                        <img src='comp.svg' alt='compare' className='w-5 h-5' />
+                      </Link>
+                      <button onClick={() =>{ navigate(`http://localhost:3000/product/${item?._id}`)
+                    console.log(item?._id);}
+                    }>
+                      <img src='view.svg' alt='view' className='w-5 h-5' />
+
+                      </button>
+                      <Link>
+                        <img src='cart1.png' alt='add to cart' className='w-5 h-5' />
+                      </Link>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            );
+          }
+          return null;
+        })
+      }
     </div>
   </div>
 </section>
+
 
 <section className='famous-wrapper py-5 home-wrapper-2 bg-[#f5f5f7]'>
   <div className='max-w-screen-xl mx-auto'>
@@ -178,9 +252,16 @@ const Home = () => {
       <h3 className='section-heading font-bold text-3xl mb-3 ms-2'>Special Products</h3>
     </div>
     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-3'>
-      <SpecialProducts />
-      <SpecialProducts />
-      <SpecialProducts />
+      {
+        productState && productState?.map((item,index)=>{
+          if(item.tags?.includes('special')){
+          console.log(item);
+            return(
+<SpecialProducts key={index} id={item?._id} brand={item?.brand} title={item?.title} totalrating={item?.totalrating.toString()} price={item?.price} sold={item?.sold} quantity={item?.quantity} image={item?.images[0]?.url}/>
+          )  }
+
+        })
+      }
     </div>
   </div>
 </section>
@@ -191,16 +272,54 @@ const Home = () => {
     <div className='flex flex-wrap'>
       {/* For larger screens, 4 items in a row */}
       <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <ProductCard />
-      </div>
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <ProductCard />
-      </div>
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <ProductCard />
-      </div>
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <ProductCard />
+      {
+        productState && productState?.map((item,index)=>{
+          if(item.tags?.includes('popular')){
+          console.log(item);
+            return(
+<div key={index} className="w-full">
+          <Link className='product-card relative'>
+            <div className='wishlist-icon absolute'>
+              <button onClick={(e)=>{addToWish(item?._id)}}>
+                <img src='wish.svg' alt='wishlist' className='w-5 h-5' />
+              </button>
+            </div>
+            <div className='product-image'>
+              <img className='w-[90%] h-64 mx-auto' src={item?.images[0]?.url} alt='product image'/>
+              <img className='w-[90%] h-64 mx-auto' src={item?.images[1]?.url} alt='product image'/>
+            </div>
+            <div className='product-details'>
+              <h6 className='brand'>{item?.brand}</h6>
+              <h5 className='product-title font-bold'>{item?.title}</h5>
+              <ReactStars
+                count={5}
+                size={24}
+                value={parseFloat(item?.totalrating) || 0}
+                edit={false}
+                activeColor="#ffd700"
+              />
+              <p className='price'>Rs. {item?.price}</p>
+            </div>
+            <div className='action-bar absolute'>
+              <div className='flex flex-col gap-2'>
+                <Link>
+                  <img src='comp.svg' alt='compare' className='w-5 h-5'/>
+                </Link>
+                <button>
+                  <img onClick={()=>navigate("/product/:"+item?._id)} src='view.svg' alt='view' className='w-5 h-5'/>
+                </button>
+                <Link>
+                  <img src='cart1.png' alt='add to cart' className='w-5 h-5'/>
+                </Link>
+              </div>
+            </div>
+          </Link>
+        </div>
+          )  }
+
+        })
+      }
+       
       </div>
     </div>
   </div>
@@ -249,19 +368,19 @@ const Home = () => {
   <div className='max-w-screen-xl mx-auto'>
     <h3 className='section-heading font-bold text-3xl mb-3 ms-2'>Our Latest Blogs</h3>
     <div className='flex flex-wrap'>
-      {/* For larger screens, 4 items in a row */}
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <BlogCard />
-      </div>
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <BlogCard />
-      </div>
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <BlogCard />
-      </div>
-      <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2'>
-        <BlogCard />
-      </div>
+    {blogState && 
+                blogState?.map((item,index)=>{
+                  if(index<4){
+                    return(
+                      <div className='w-[25%]' key={index}>
+                                      <BlogCard id={item?._id} title={item?.title} description={item?.description} image={item?.images[0]?.url}
+                                     date={moment(item?.createdAt).format("MMMM Do YYYY, h:mm a")} />
+                                      </div>
+                                        )
+                  }
+                 
+                })
+              }
     </div>
   </div>
 </section>

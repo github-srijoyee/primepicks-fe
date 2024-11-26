@@ -393,6 +393,10 @@ display: block;
   background-color: white;
   border-radius: 10px;
 }
+.errors{
+  color: red;
+  font-size: 12px;
+}
 .gr-12{
   width: 100%;
 }
